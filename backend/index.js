@@ -36,6 +36,19 @@ app.post('/api/login', (req, res) => {
   });
 });
 
+app.post('/api/register', (req, res) => {
+  const { username, password } = req.body;
+  if (!username || !password) return res.status(400).json({ error: 'Username and password are required' });
+  db.run('INSERT INTO Users (username, password, role) VALUES (?, ?, ?)', [username, password, 'user'], function (err) {
+    if (err) {
+      if (err.message.includes('UNIQUE')) return res.status(400).json({ error: 'Username already exists' });
+      return res.status(500).json({ error: 'Database error' });
+    }
+    req.session.user = { id: this.lastID, username, role: 'user' };
+    res.json({ user: req.session.user });
+  });
+});
+
 app.post('/api/logout', (req, res) => {
   req.session.destroy(() => res.json({ message: 'Logged out' }));
 });

@@ -20,7 +20,9 @@ function App() {
   const [editing, setEditing] = useState(null);
   const [editingVehicle, setEditingVehicle] = useState(null);
   const [editingReservation, setEditingReservation] = useState(null);
-  const [loginData, setLoginData] = useState({ username: 'admin', password: 'admin123' });
+  const [loginData, setLoginData] = useState({ username: '', password: '' });
+  const [registerData, setRegisterData] = useState({ username: '', password: '', confirmPassword: '' });
+  const [isRegistering, setIsRegistering] = useState(false);
   const [error, setError] = useState('');
 
   const fetchJson = async (url, options = {}) => {
@@ -72,6 +74,29 @@ function App() {
     } catch (err) {
       setError(err.message);
     }
+  };
+
+  const handleRegister = async (event) => {
+    event.preventDefault();
+    if (registerData.password !== registerData.confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+    try {
+      const payload = { username: registerData.username, password: registerData.password };
+      const data = await fetchJson(`${API}/register`, { method: 'POST', body: JSON.stringify(payload) });
+      setUser(data.user);
+      setError('');
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const toggleRegister = () => {
+    setError('');
+    setLoginData({ username: '', password: '' });
+    setRegisterData({ username: '', password: '', confirmPassword: '' });
+    setIsRegistering((prev) => !prev);
   };
 
   const handleLogout = async () => {
@@ -140,16 +165,35 @@ function App() {
     return (
       <div className="page login-page">
         <div className="card">
-          <h1>SwiftWheels VRS Login</h1>
-          <form onSubmit={handleLogin}>
+          <h1>{isRegistering ? 'SwiftWheels VRS Register' : 'SwiftWheels VRS Login'}</h1>
+          <form onSubmit={isRegistering ? handleRegister : handleLogin}>
             <label>Username</label>
-            <input value={loginData.username} onChange={(e) => setLoginData({ ...loginData, username: e.target.value })} />
+            <input
+              value={isRegistering ? registerData.username : loginData.username}
+              onChange={(e) => isRegistering ? setRegisterData({ ...registerData, username: e.target.value }) : setLoginData({ ...loginData, username: e.target.value })}
+            />
             <label>Password</label>
-            <input type="password" value={loginData.password} onChange={(e) => setLoginData({ ...loginData, password: e.target.value })} />
-            <button type="submit">Login</button>
+            <input
+              type="password"
+              value={isRegistering ? registerData.password : loginData.password}
+              onChange={(e) => isRegistering ? setRegisterData({ ...registerData, password: e.target.value }) : setLoginData({ ...loginData, password: e.target.value })}
+            />
+            {isRegistering && (
+              <>
+                <label>Confirm Password</label>
+                <input
+                  type="password"
+                  value={registerData.confirmPassword}
+                  onChange={(e) => setRegisterData({ ...registerData, confirmPassword: e.target.value })}
+                />
+              </>
+            )}
+            <button type="submit">{isRegistering ? 'Register' : 'Login'}</button>
             {error && <div className="error">{error}</div>}
           </form>
-          <div className="hint">Default: admin / admin123</div>
+          <button className="secondary" onClick={toggleRegister}>
+            {isRegistering ? 'Back to Login' : 'Create an account'}
+          </button>
         </div>
       </div>
     );

@@ -206,11 +206,11 @@ function App() {
           <h1>SwiftWheels VRS</h1>
           <p>Logged in as {user.username}</p>
         </div>
-        <div>
-          <button onClick={() => setPage('customers')}>Customers</button>
-          <button onClick={() => setPage('vehicles')}>Vehicles</button>
-          <button onClick={() => setPage('reservations')}>Reservations</button>
-          <button onClick={() => setPage('report')}>Report</button>
+        <div className="nav-menu">
+          <button className={page === 'customers' ? 'active' : ''} onClick={() => setPage('customers')}>Customers</button>
+          <button className={page === 'vehicles' ? 'active' : ''} onClick={() => setPage('vehicles')}>Vehicles</button>
+          <button className={page === 'reservations' ? 'active' : ''} onClick={() => setPage('reservations')}>Reservations</button>
+          <button className={page === 'report' ? 'active' : ''} onClick={() => setPage('report')}>Report</button>
           <button className="logout" onClick={handleLogout}>Logout</button>
         </div>
       </header>
